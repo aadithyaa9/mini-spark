@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 )
 
 // KV is used as a Map Reuce
@@ -52,6 +53,34 @@ func mapfn (line string ) []KV {
 
 }
 
+func parallelMap(lines []string)[]KV{
+		res := make(chan []KV , len(lines))
+
+		var wg sync.WaitGroup 
+
+		for i , line := range lines {
+			wg.Add(1)
+
+			go func(idx int , l string){
+				defer wg.Done()
+				pairs := mapfn(l)
+				fmt.Printf("map(line %d) → %v\n", idx, pairs)
+				res <- pairs
+
+
+			}(i , line)
+		}
+
+		wg.Wait()
+		close(res)
+
+		var allpairs []KV
+
+		for pairs := range res{
+			allpairs = append(allpairs , pairs...)
+		}
+		return allpairs
+	}
 // Shuffle function
 
 
@@ -122,17 +151,12 @@ func main(){
 		fmt.Printf("Line %d : %s\n" , i+1 , line)
 	}
 	fmt.Println()
-	var allPairs []KV
-
-	for i , line  := range input {
-		pairs := mapfn(line)
-		fmt.Printf("Map (line %d) -> %v" , i , pairs)
-
-		allPairs = append(allPairs, pairs...)
-	}
 
 
-	fmt.Printf("\nTotal pairs after map: %d\n\n", len(allPairs))
+	
+	allPairs := parallelMap(input)
+    fmt.Printf("\nTotal pairs after map: %d\n\n", len(allPairs))
+
 
 
 	grouped := shuffle(allPairs)
@@ -167,3 +191,4 @@ func main(){
 		}
 
 }
+
