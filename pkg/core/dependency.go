@@ -10,23 +10,23 @@ type NarrowDependency interface {
 	GetParents(childIndex int) []int
 }
 
-type OnetoOneDependency struct {
+type OneToOneDependency struct {
 	parent RDD
 }
 
-func NewOnetoOneDependency(parent RDD) *OnetoOneDependency {
-	return &OnetoOneDependency{parent: parent}
+func NewOneToOneDependency(parent RDD) *OneToOneDependency {
+	return &OneToOneDependency{parent: parent}
 }
 
-func (d *OnetoOneDependency) Parent() RDD {
+func (d *OneToOneDependency) Parent() RDD {
 	return d.parent
 }
 
-func (d *OnetoOneDependency) IsShuffle() bool {
+func (d *OneToOneDependency) IsShuffle() bool {
 	return false
 }
 
-func (d *OnetoOneDependency) GetParents(childIndex int) []int {
+func (d *OneToOneDependency) GetParents(childIndex int) []int {
 	return []int{childIndex}
 }
 
